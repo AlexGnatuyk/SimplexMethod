@@ -65,7 +65,7 @@ namespace Simplex
 
         }
 
-        public static ShowTable(Function target, List<Restriction> restrictions, List<int> basis, List<double> simplex_diff)
+        public static (Function target, List<Restriction> restrictions, List<int> basis, List<double> simplex_diff) ShowTable(Function target, List<Restriction> restrictions, List<int> basis, List<double> simplex_diff)
         {
             
            Console.Write($"Basis:");
@@ -150,25 +150,135 @@ namespace Simplex
                 }
                 Console.Write(x[target.coefficients.Count - 1]);
                 Console.WriteLine(") оптимально.");
-
-
-                system("PAUSE");
-                exit(0);
+                
             }
 
             // Проверка на неограниченность функции сверху
-            for (int i = 0; i < simplex_diff.size(); ++i)
+            for (int i = 0; i < simplex_diff.Count; ++i)
             {
                 if (simplex_diff[i] <= 0)
                 {
                     if (Is_Unbounded_Function(restrictions, i))
                     {
-                        cout << "Функция неограниченна сверху" << endl;
-                        system("PAUSE");
-                        exit(0);
+                        Console.WriteLine("Функция неограниченна сверху" );
+                        
                     }
                 }
             }
+            return (target: target, restrictions: restrictions, basis: basis, simplex_diff: simplex_diff);
+        }
+
+        public  static bool Is_Unbounded_Function(List<Restriction> restrictions, int i)
+        {
+            int minus_cnt = 0;
+            for (int j = 0; j < restrictions.Count; j++)
+            {
+                if (restrictions[j].coefficients[i] <= 0)
+                    minus_cnt++;
+            }
+            if (minus_cnt == restrictions.Count)
+                return true;
+            else return false;
+        }
+
+        public  static ( List<Restriction> restrictions, List<int> basis, List<double> simplex_diff) UpdateTable(List<Restriction> restrictions, List<int> basis, List<double> simplex_diff, bool blender)
+        {
+            // Поиск минимальной симплексной разности
+            int ind_min_diff = 0;
+            double tmp_diff = simplex_diff[0];
+            if (blender)
+            {
+                for (int i = 0; i < simplex_diff.Count; i++)
+                {
+                    tmp_diff = simplex_diff[i];
+                    if (tmp_diff < 0)
+                    {
+                        ind_min_diff = i;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 1; i < simplex_diff.Count; i++)
+                {
+                    if (simplex_diff[i] < tmp_diff)
+                    {
+                        tmp_diff = simplex_diff[i];
+                        ind_min_diff = i;
+                    }
+                }
+            }
+
+            // Поиск направляющего элемента
+            int ind_min_restr = 0;
+            double tmp_restr = 0;
+
+            // Ищем первый положительный элемент столбца, чтобы присвоить начальные значения
+            for (int i = 0; i < restrictions.Count; i++)
+            {
+                if (restrictions[i].coefficients[ind_min_diff] > 0)
+                {
+                    tmp_restr = restrictions[i].rvalue / restrictions[i].coefficients[ind_min_diff];
+                    ind_min_restr = i;
+                    break;
+                }
+            }
+
+            // Начиная с него ищем направляющий элемент
+            for (int i = ind_min_restr; i < restrictions.Count; i++)
+            {
+                if ((restrictions[i].coefficients[ind_min_diff] > 0) && (restrictions[i].rvalue / restrictions[i].coefficients[ind_min_diff] < tmp_restr))
+                {
+                    ind_min_restr = i;
+                    tmp_restr = restrictions[i].rvalue / restrictions[i].coefficients[ind_min_diff];
+                }
+            }
+
+            // Меянем базис
+            basis[ind_min_restr] = ind_min_diff + 1;
+
+            // Копируем элементы rvalue во временный вектор
+            List<double> tmp_rvalue = new List<double>();
+            for (int i = 0; i < restrictions.Count; i++)
+            {
+                tmp_rvalue.Add(restrictions[i].rvalue);
+            }
+
+
+            double guiding = restrictions[ind_min_restr].coefficients[ind_min_diff]; // Значение направляющего элемента
+            // Меняем остальные коэф-ты
+            for (int i = 0; i < restrictions.Count; i++)
+            {
+                if (i != ind_min_restr)
+                {
+                    // Копируем строку
+                    List<double> tmp = new List<double>(); // Временный вектор для значений изменяемой строки
+                    for (int k = 0; k < restrictions[i].coefficients.Count; k++)
+                    {
+                        tmp.Add(restrictions[i].coefficients[k]);
+                    }
+
+                    // Обновляем строку
+                    for (int j = 0; j < restrictions[i].coefficients.Count; j++)
+                    {
+                        restrictions[i].coefficients[j] = tmp[j] - restrictions[ind_min_restr].coefficients[j] * tmp[ind_min_diff] / guiding;
+                    }
+
+                    // Меняем правую часть
+                    restrictions[i].rvalue = tmp_rvalue[i] - restrictions[ind_min_restr].rvalue * tmp[ind_min_diff] / guiding;
+                    tmp.Clear();
+                }
+            }
+
+            // Меняем направляющую строку
+            for (int i = 0; i < restrictions[ind_min_restr].coefficients.Count; i++)
+            {
+                restrictions[ind_min_restr].coefficients[i] /= guiding;
+            }
+            restrictions[ind_min_restr].rvalue /= guiding;
+            tmp_rvalue.Clear();
+            return (restrictions: restrictions, basis: basis, simplex_diff: simplex_diff);
         }
     }
 }

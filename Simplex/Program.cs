@@ -22,6 +22,12 @@ namespace Simplex
             var tm= Simplex.Norm_to_Kanon(result.target, result.restrictions, basis);
             Parser.ShowParse(tm.target,tm.restrictions);
 
+            while (true)
+            {
+                var newResult = Simplex.ShowTable(tm.target, tm.restrictions, tm.basis, simplexDiff);
+
+            }
+
 
             Console.Read();
         }
