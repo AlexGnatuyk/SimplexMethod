@@ -15,17 +15,18 @@ namespace Simplex
             var target = new Function();
             var restrictions = new List<Restriction>();
             var basis = new List<int>();
+            var run = true;
             var simplexDiff = new List<double>();
 
-            var result = Parser.Parse(target, restrictions, "example.txt");
-            Parser.ShowParse(result.target,result.restrictions);
-            var tm= Simplex.Norm_to_Kanon(result.target, result.restrictions, basis);
-            Parser.ShowParse(tm.target,tm.restrictions);
+            Parser.Parse(ref target,ref restrictions, "example.txt");
+            Parser.ShowParse(target,restrictions);
+            Simplex.Norm_to_Kanon(ref target, ref restrictions, ref basis);
+            Parser.ShowParse(target,restrictions);
 
-            while (true)
+            while (run)
             {
-                var newResult = Simplex.ShowTable(tm.target, tm.restrictions, tm.basis, simplexDiff);
-
+                Simplex.ShowTable(ref target, ref restrictions, ref basis, ref simplexDiff, ref run);
+                Simplex.UpdateTable(ref restrictions, ref basis, ref simplexDiff, true);
             }
 
 

@@ -6,7 +6,7 @@ namespace Simplex
 {
     public static class Parser
     {
-        public static (Function target, List<Restriction> restrictions) Parse(Function target, List<Restriction> restrictions,
+        public static void Parse(ref Function target,ref List<Restriction> restrictions,
             string path)
         {
             bool flag = false;
@@ -55,8 +55,7 @@ namespace Simplex
                     restrictions.Add(tempRestriction);
                 }
             }
-
-            return (target: target, restrictions: restrictions);
+           
         }
 
         public static void ShowParse(Function target, List<Restriction> restrictions)

@@ -5,7 +5,7 @@ namespace Simplex
 {
     public static class Simplex
     {
-        public static (Function target, List<Restriction> restrictions, List<int> basis) Norm_to_Kanon(Function target, List<Restriction> restrictions, List<int> basis)
+        public static  void Norm_to_Kanon(ref Function target,ref List<Restriction> restrictions, ref List<int> basis)
         {
             const double EPS = 0.0001;
             if (target.way == "min")
@@ -61,24 +61,22 @@ namespace Simplex
                     restrictions[i].sign = "=";
                 }
             }
-            return (target: target, restrictions: restrictions,basis: basis);
-
         }
 
-        public static (Function target, List<Restriction> restrictions, List<int> basis, List<double> simplex_diff) ShowTable(Function target, List<Restriction> restrictions, List<int> basis, List<double> simplex_diff)
+        public static void ShowTable(ref Function target,ref List<Restriction> restrictions,ref List<int> basis,ref List<double> simplex_diff, ref bool run)
         {
             
-           Console.Write($"Basis:");
+           Console.Write($"Basis:    ");
             for (int i = 0; i < target.coefficients.Count; i++)
             {
                 Console.Write($"{target.coefficients[i]} ");
             }
-            Console.WriteLine("---------------------------------");
+            Console.WriteLine("\n---------------------------------\n");
             Console.Write("               B  ");
 
             for (int i = 0; i < target.coefficients.Count; i++)
             {
-                Console.Write($"A {i+1} ");
+                Console.Write($"A{i+1} ");
             }
             Console.WriteLine();
             Console.WriteLine("---------------------------------");
@@ -98,9 +96,9 @@ namespace Simplex
                     }
                     
                 }
-                Console.WriteLine("---------------------------------\n" );
+                Console.WriteLine("\n---------------------------------" );
             }
-            Console.WriteLine("         Z=");
+            Console.Write("     Z=");
 
             // Считаем значение целевой функции в точке
             double fun_value = 0;
@@ -150,7 +148,8 @@ namespace Simplex
                 }
                 Console.Write(x[target.coefficients.Count - 1]);
                 Console.WriteLine(") оптимально.");
-                
+                run = false;
+
             }
 
             // Проверка на неограниченность функции сверху
@@ -165,7 +164,6 @@ namespace Simplex
                     }
                 }
             }
-            return (target: target, restrictions: restrictions, basis: basis, simplex_diff: simplex_diff);
         }
 
         public  static bool Is_Unbounded_Function(List<Restriction> restrictions, int i)
@@ -181,7 +179,7 @@ namespace Simplex
             else return false;
         }
 
-        public  static ( List<Restriction> restrictions, List<int> basis, List<double> simplex_diff) UpdateTable(List<Restriction> restrictions, List<int> basis, List<double> simplex_diff, bool blender)
+        public  static void UpdateTable(ref List<Restriction> restrictions,ref List<int> basis,ref List<double> simplex_diff, bool blender)
         {
             // Поиск минимальной симплексной разности
             int ind_min_diff = 0;
@@ -278,7 +276,6 @@ namespace Simplex
             }
             restrictions[ind_min_restr].rvalue /= guiding;
             tmp_rvalue.Clear();
-            return (restrictions: restrictions, basis: basis, simplex_diff: simplex_diff);
         }
     }
 }
