@@ -49,15 +49,7 @@ namespace Simplex
                             restrictions[k].coefficients.Add(0);
                         }
                     }
-                    // Если rvalue отрицательно
-                    /*if (restrictions[i].rvalue < -0.0001)
-                    {
-                        for (int j = 0; j < restrictions[i].coefficients.size(); j++)
-                        {
-                            restrictions[i].coefficients[j] *= -1;
-                        }
-                        restrictions[i].rvalue *= -1;
-                    }*/
+                   
                     restrictions[i].sign = "=";
                 }
             }
